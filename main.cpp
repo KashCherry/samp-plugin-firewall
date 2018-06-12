@@ -86,7 +86,7 @@ int OnSAMPQuery(struct in_addr in, u_short host, char *buffer, int len, SOCKET s
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 {
-    return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
+    return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES | SUPPORTS_PROCESS_TICK;
 }
 
 
