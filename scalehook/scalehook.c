@@ -41,10 +41,6 @@
 //	Structures:
 //		scalehook_t - scalehook structure
 //
-//	Types:
-//		Method type. (no opcodes)
-//		Call type. (opcodes)
-//
 //	Definited types:
 //		opcode_t (unsigned char).
 //		bytes_t (unsigned char *).
@@ -76,7 +72,7 @@ scalehook_export int scalehook_call scalehook_unprotect(void *src, size_t size)
 	}
 #else
 	int pagesize = sysconf(_SC_PAGE_SIZE);
-	src = (void*)((unsigned long)src & ~(pagesize - 1));
+	src = (void*)((address_t)src & ~(pagesize - 1));
 	if (mprotect(src, size, PROT_READ | PROT_EXEC | PROT_WRITE) != 0)
 	{
 		return 0;
@@ -139,8 +135,8 @@ scalehook_export int scalehook_call scalehook_execute_jmp(scalehook_jmp_t *scale
 	}
 
 	scalehook_jmp->new_bytes[0] = scalehook_jmp->opcode;
-	scalehook_jmp->relative_address = (unsigned long)scalehook_jmp->dst - ((unsigned long)scalehook_jmp->src + scalehook_jmp_size);
-	*(unsigned long*)(scalehook_jmp->new_bytes + 1) = scalehook_jmp->relative_address;
+	scalehook_jmp->relative_address = (address_t)scalehook_jmp->dst - ((address_t)scalehook_jmp->src + scalehook_jmp_size);
+	*(address_t*)(scalehook_jmp->new_bytes + 1) = scalehook_jmp->relative_address;
 
 	return scalehook_execute_bytes(scalehook_jmp->new_bytes, scalehook_jmp->src, scalehook_jmp->size);
 }
@@ -178,11 +174,11 @@ scalehook_export scalehook_t *scalehook_call scalehook_create(void *src, void *d
 
 	if (scalehook->scalehook_jmp->opcode == scalehook_opcode_call)
 	{
-		scalehook->original_address = ((unsigned long)src + 1) + ((unsigned long)src + 5);
+		scalehook->original_address = ((address_t)src + 1) + ((address_t)src + 5);
 	}
 	else
 	{
-		scalehook->original_address = (unsigned long)src;
+		scalehook->original_address = (address_t)src;
 	}
 
 	if (!scalehook_execute_jmp(scalehook->scalehook_jmp))
@@ -261,7 +257,7 @@ scalehook_export int scalehook_call scalehook_uninstall(scalehook_t *scalehook)
 	return 1;
 }
 
-scalehook_export unsigned long scalehook_call scalehook_get_original_address(scalehook_t *scalehook)
+scalehook_export address_t scalehook_call scalehook_get_original_address(scalehook_t *scalehook)
 {
 	if (!scalehook)
 	{
@@ -351,7 +347,7 @@ scalehook_export bytes_t scalehook_call scalehook_jmp_get_new_bytes(scalehook_jm
 	return scalehook_jmp->new_bytes;
 }
 
-scalehook_export unsigned long scalehook_call scalehook_jmp_get_relative_address(scalehook_jmp_t *scalehook_jmp)
+scalehook_export address_t scalehook_call scalehook_jmp_get_relative_address(scalehook_jmp_t *scalehook_jmp)
 {
 	if (!scalehook_jmp)
 	{

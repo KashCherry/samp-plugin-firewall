@@ -1,0 +1,3 @@
+[submodule "scalehook"]
+	path = scalehook
+	url = https://github.com/RakLabs/scalehook
